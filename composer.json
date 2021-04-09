@@ -1,12 +1,13 @@
 {
-    "name": "apgit33/mailer-package-starter",
+    "name": "apgit33/mailer",
     "type": "library",
     "description": "Mailer project",
     "time": "2021-04-09",
     "keywords": [
-        "mailer"
+        "mailer",
+        "package"
     ],
-    "homepage": "https://github.com/apgit33/Mailer",
+    "homepage": "https://github.com/apgit33/mailer",
     "license": "MIT",
     "authors": [
         {
