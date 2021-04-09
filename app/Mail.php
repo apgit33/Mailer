@@ -5,8 +5,6 @@ namespace App;
 use Exception;
 use InvalidArgumentException;
 
-use function PHPUnit\Framework\throwException;
-
 /**
  * Mail class
  * @author Adrien <email@email.com>
