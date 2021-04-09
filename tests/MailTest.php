@@ -111,46 +111,100 @@ final class MailTest extends TestCase
     {
         $mail = new Mail();
 
-        $this->assertNull($mail->add('invalid','user@example.fr'));
+        $this->expectException('InvalidArgumentException');
+
+        $mail->add('invalid','user@example.fr');
     }    
     
     public function testAddInvalidStringEmailNotValid(): void
     {
         $mail = new Mail();
 
-        $this->assertNull($mail->add('invalid','user@examp'));
+        $this->expectException('InvalidArgumentException');
+
+        $mail->add('invalid','user@example');
     }
 
     public function testAddInvalidArrayEmailValid(): void
     {
         $mail = new Mail();
 
-        $this->assertNull($mail->add('invalid',['user@example.com','secondemail@example.fr']));
+        $this->expectException('InvalidArgumentException');
+
+        $mail->add('invalid',['user@example.com','secondemail@example.fr']);
     }    
     
     public function testAddInvalidArrayEmailNotValid(): void
     {
         $mail = new Mail();
 
-        $this->assertNull($mail->add('invalid',['user@examp','second%email']));
+        $this->expectException('InvalidArgumentException');
+
+        $mail->add('invalid',['user@examp','second%email']);
     }
 
+    //attachment
+    public function testAddAttachmentStringFileExist()
+    {
+        $mail = new Mail();
+
+        $this->assertNull($mail->addAttachment('./upload/html.txt'));
+    }
+
+    public function testAddAttachmentArrayFileExist()
+    {
+        $mail = new Mail();
+
+        $this->assertNull($mail->addAttachment(['./upload/html.txt','./upload/html_copy.txt']));
+    }
+
+    public function testAddAttachmentStringFileNotExist()
+    {
+        $mail = new Mail();
+
+        $this->expectException('Exception');
+
+        $mail->addAttachment('invalid.txt');
+    }
+
+    public function testAddAttachmentArrayFileNotExist()
+    {
+        $mail = new Mail();
+
+        $this->expectException('Exception');
+
+        $mail->addAttachment(['invalid.txt','invalid2.txt']);
+    }
+    
     //send
     public function testSendInvalidParams(): void
     {
         $mail = new Mail();
 
-        $this->assertEquals('Mail not send', $mail->send());
+        $this->expectException('InvalidArgumentException');
+
+        $mail->send();
     }
 
-    public function testSendValidParams(): void
+    public function testSendValidParamsWithoutAttachment(): void
     {
         $mail = new Mail();
         $mail->setSender('test@test.fr');
         $mail->add('recipients','rec@rec.fr');
         $mail->setBody('Hello');
 
-        $this->assertEquals('Mail send', $mail->send());
-        
+        $this->assertTrue($mail->send());
     }
+    
+    public function testSendValidParamsWithAttachment(): void
+    {
+        $mail = new Mail();
+        $mail->setSender('test@test.fr');
+        $mail->add('recipients','rec@rec.fr');
+        $mail->setBody('Hello');
+        $mail->addAttachment('./upload/html.txt');
+
+        $this->assertTrue($mail->send());
+    }
+
 }
