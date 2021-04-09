@@ -2,6 +2,9 @@
 
 namespace App;
 
+use Exception;
+use InvalidArgumentException;
+
 /**
  * Mail class
  * @author Adrien <email@email.com>
@@ -62,7 +65,7 @@ class Mail
      *
      * @var string
      */
-    protected $type = 'html';
+    protected $type = "html";
 
     /**
      * Mail boundary
@@ -82,7 +85,7 @@ class Mail
     {
         $this->boundary = md5(uniqid(microtime(), true));
     }
-    
+
     /**
      * Set mail sender
      *
@@ -105,7 +108,7 @@ class Mail
      */
     public function add($param, $data): void
     {
-        if(in_array($param, ['recipients','bcc','cc'])) {
+        if (in_array($param, ['recipients', 'bcc', 'cc'])) {
             $this->validateEmail($data);
 
             if (is_array($data)) {
@@ -146,7 +149,7 @@ class Mail
      */
     public function setType(string $type): void
     {
-        if ($type == 'text' || $type == 'html') {
+        if ($type == "text" || $type == "html") {
             $this->type = $type;
         }
     }
@@ -159,60 +162,64 @@ class Mail
     private function setHeaders(): void
     {
         $this->headers = "";
-        $this->headers .= "From: $this->sender\r\n";
+        $this->headers .= "From: " . $this->sender . "\r\n";
         $this->headers .= "MIME-Version: 1.0\r\n";
         $this->headers .= "Content-Type: multipart/mixed; ";
-        $this->headers .= "boundary=\"$this->boundary\"\r\n";
+        $this->headers .= "boundary=\"" . $this->boundary . "\"\r\n";
     }
 
     /**
-     * Check mandatory parameters :
+     * Check mandatory parameters and set
      * sender,recipients
      *
-     * @return boolean
+     * @return void
      */
-    private function checkParams(): bool
+    private function checkParams(): void
     {
         $errors = [];
+        $params = [
+            'sender' => $this->sender,
+            'recipients' => $this->recipients,
+        ];
 
-        if (empty($this->sender)) $errors[] = 'Sender can\'t be null';
-        if (empty($this->recipients)) $errors[] = 'Recipients can\'t be null';
-        if (empty($errors)) {
-            $this->setHeaders();
-            return true;
-        } else {
-            foreach ($errors as $error) {
-                // print_r($error);
-            }
-            return false;
+        foreach ($params as $key => $value) {
+            if (empty($value)) $errors[] = $key . " can't be null";
         }
+
+        if (!empty($errors)) {
+            throw new \InvalidArgumentException(implode(" - \n", $errors));
+        }
+
+        $this->setHeaders();
+
+        $this->body = $this->formatBody();
     }
 
     /**
      * Validates email address
      * 
      * @param string|array $email - email to validate
-     * @return boolean
+     * @return void
      */
-    private function validateEmail($email): bool
+    private function validateEmail($email): void
     {
         if (is_array($email)) {
             foreach ($email as $mail) {
                 if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-                    throw new \InvalidArgumentException("$mail must be a valid email");
+                    throw new \InvalidArgumentException($mail . " must be a valid email");
                 }
             }
         } else {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new \InvalidArgumentException("$email must be a valid email");
+                throw new \InvalidArgumentException($email . " must be a valid email");
             }
         }
-
-        return true;
     }
 
     /**
      * Add mail attachment
+     * 
+     * TODO : better check/exceptions
      *
      * @param string|array $file - pathname of the file(s) to add
      * @return void
@@ -221,16 +228,22 @@ class Mail
     {
         if (is_array($file)) {
             foreach ($file as $f) {
-                $fileAdd = file_get_contents($f);
-                $fileAdd = chunk_split(base64_encode($fileAdd));
+                $content = @file_get_contents($f);
 
-                $this->attchment[] = [$f => $fileAdd];
+                if ($content === FALSE) throw new Exception($f . "doesn't exist");
+
+                $content = chunk_split(base64_encode($content));
+
+                $this->attchment[] = [$f => $content];
             }
         } else {
-            $fileAdd = file_get_contents($file);
-            $fileAdd = chunk_split(base64_encode($fileAdd));
+            $content = @file_get_contents($file);
 
-            $this->attchment[] = [$file => $fileAdd];
+            if ($content === FALSE) throw new Exception($file . "doesn't exist");
+
+            $content = chunk_split(base64_encode($content));
+
+            $this->attchment[] = [$file => $content];
         }
     }
 
@@ -242,46 +255,46 @@ class Mail
     private function formatBody(): string
     {
         $message  = "";
-        $message .= "--$this->boundary\r\n";
-        $message .= "Content-Type: text/$this->type; ";
+        $message .= "--" . $this->boundary . "\r\n";
+        $message .= "Content-Type: text/" . $this->type . "; ";
         $message .= "charset=iso-8859-1\r\n ";
         $message .= "Content-Transfer-Encoding: 8bit\r\n";
-        $message .= "\r\n";   // ligne vide 
-        $message .= "$this->body\r\n";
-        $message .= "\r\n";   // ligne vide 
+        $message .= "\r\n";
+        $message .= $this->body . "\r\n";
+        $message .= "\r\n";
 
         foreach ($this->attchment as $attchments) {
             foreach ($attchments as $key => $value) {
-                $message .= "--$this->boundary\r\n";
+                $message .= "--" . $this->boundary . "\r\n";
                 $message .= "Content-Type: application/octet-stream; ";
-                $message .= "name=\"$key\"\r\n";
+                $message .= "name=\"" . $key . "\"\r\n";
                 $message .= "Content-Transfer-Encoding: base64\r\n";
                 $message .= "Content-Disposition: attachment; ";
-                $message .= "filename=\"$key\"\r\n";
-                $message .= "\r\n";             // ligne vide 
-                $message .= "$value\r\n";
-                $message .= "\r\n";   // ligne vide 
+                $message .= "filename=\"" . $key . "\"\r\n";
+                $message .= "\r\n";
+                $message .= $value . "\r\n";
+                $message .= "\r\n";
             }
         }
 
-        return $message .= "--$this->boundary--\r\n";
+        return $message .= "--" . $this->boundary . "--\r\n";
     }
 
     /**
      * Send mail
      *
-     * @return string - Custom message
+     * TODO : exceptions attachments size, ...
+     * 
+     * @return boolean
      */
-    public function send(): string
+    public function send(): bool
     {
-        if ($this->checkParams()) {
-            $message = $this->formatBody();
+        $this->checkParams();
 
-            if (mail(implode(',', $this->recipients), $this->subject, $message, $this->headers)) {
-                return 'Mail send';
-            }
+        if (!mail(implode(',', $this->recipients), $this->subject, $this->body, $this->headers)) {
+            throw new \InvalidArgumentException("Problem while sending the mail");
         }
 
-        return 'Mail not send';
+        return true;
     }
 }
