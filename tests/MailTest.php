@@ -5,6 +5,15 @@ namespace Tests;
 use App\Mail;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * MailTest class
+ * 
+ * Package use : 
+ *      composer require "apgit33/mailer @dev"
+ * 
+ * @author Adrien <email@email.com>
+ */
+
 final class MailTest extends TestCase
 {
     /**

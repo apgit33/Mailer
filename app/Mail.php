@@ -7,6 +7,10 @@ use InvalidArgumentException;
 
 /**
  * Mail class
+ * 
+ * Package use : 
+ *      composer require "apgit33/mailer @dev"
+ * 
  * @author Adrien <email@email.com>
  */
 class Mail
