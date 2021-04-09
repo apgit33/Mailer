@@ -9,7 +9,9 @@
 + Définir si le mail sera envoyé au format text ou html
 
 ## Bonus
-+ Possibilité de définir la confuguration de serveur de mail ( host, port, identifiant, mot de pass, tls) 
++ Possibilité de définir la confuguration de serveur de mail ( host, port, identifiant, mot de pass, tls) (non réalisé)
 
-## Rem : 
-+ Utiliser postman pour tester le fonctionnement de votre classe. 
+# Installation
+```bash
+composer require "apgit33/mailer @dev"
+```
