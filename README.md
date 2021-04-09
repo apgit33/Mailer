@@ -1,7 +1,6 @@
-# Faire une classe d'envoi de mail permettant à l'utilisateur de :
+# Classe d'envoi de mail permettant à l'utilisateur de :
 
-## Définir un ou plusieurs destinataires (a)
-
++ Définir un ou plusieurs destinataires (a)
 + Définir un ou plusieurs destinatairess en copie carbonne (cc) - *facultatif*
 + Définir un ou plusieurs destinataires en copie carbone caché - *facutatif*
 + Définir l'objet du mail
