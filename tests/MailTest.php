@@ -144,21 +144,21 @@ final class MailTest extends TestCase
     }
 
     //attachment
-    public function testAddAttachmentStringFileExist()
+    public function testAddAttachmentStringFileExist(): void
     {
         $mail = new Mail();
 
         $this->assertNull($mail->addAttachment('./upload/html.txt'));
     }
 
-    public function testAddAttachmentArrayFileExist()
+    public function testAddAttachmentArrayFileExist(): void
     {
         $mail = new Mail();
 
         $this->assertNull($mail->addAttachment(['./upload/html.txt','./upload/html_copy.txt']));
     }
 
-    public function testAddAttachmentStringFileNotExist()
+    public function testAddAttachmentStringFileNotExist(): void
     {
         $mail = new Mail();
 
@@ -167,7 +167,7 @@ final class MailTest extends TestCase
         $mail->addAttachment('invalid.txt');
     }
 
-    public function testAddAttachmentArrayFileNotExist()
+    public function testAddAttachmentArrayFileNotExist(): void
     {
         $mail = new Mail();
 
@@ -195,7 +195,7 @@ final class MailTest extends TestCase
 
         $this->assertTrue($mail->send());
     }
-    
+
     public function testSendValidParamsWithAttachment(): void
     {
         $mail = new Mail();
