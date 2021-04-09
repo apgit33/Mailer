@@ -8,6 +8,7 @@ use InvalidArgumentException;
 /**
  * Mail class
  * 
+ * Project found at : https://github.com/apgit33/mailer
  * Package use : 
  *      composer require "apgit33/mailer @dev"
  * 
