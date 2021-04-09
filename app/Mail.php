@@ -5,6 +5,8 @@ namespace App;
 use Exception;
 use InvalidArgumentException;
 
+use function PHPUnit\Framework\throwException;
+
 /**
  * Mail class
  * @author Adrien <email@email.com>
@@ -108,14 +110,14 @@ class Mail
      */
     public function add($param, $data): void
     {
-        if (in_array($param, ['recipients', 'bcc', 'cc'])) {
-            $this->validateEmail($data);
+        if (!in_array($param, ['recipients', 'bcc', 'cc'])) throw new InvalidArgumentException($param . " must be recipients, bcc or cc");
 
-            if (is_array($data)) {
-                $this->{$param} = array_merge($this->{$param}, $data);
-            } else {
-                $this->{$param}[] = strip_tags($data);
-            }
+        $this->validateEmail($data);
+
+        if (is_array($data)) {
+            $this->{$param} = array_merge($this->{$param}, $data);
+        } else {
+            $this->{$param}[] = strip_tags($data);
         }
     }
 
@@ -230,7 +232,7 @@ class Mail
             foreach ($file as $f) {
                 $content = @file_get_contents($f);
 
-                if ($content === FALSE) throw new Exception($f . "doesn't exist");
+                if ($content === FALSE) throw new Exception($f . " doesn't exist");
 
                 $content = chunk_split(base64_encode($content));
 
@@ -239,7 +241,7 @@ class Mail
         } else {
             $content = @file_get_contents($file);
 
-            if ($content === FALSE) throw new Exception($file . "doesn't exist");
+            if ($content === FALSE) throw new Exception($file . " doesn't exist");
 
             $content = chunk_split(base64_encode($content));
 
